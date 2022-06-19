@@ -1,0 +1,69 @@
+PRAGMA user_version = 1;
+
+CREATE TABLE urls (
+	id			INTEGER NOT NULL PRIMARY KEY,
+	url			TEXT NOT NULL UNIQUE,
+	first_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	last_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_last_visit_on_urls
+AFTER UPDATE ON urls
+BEGIN
+   UPDATE urls SET last_visit = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TABLE visitors (
+	id			INTEGER NOT NULL PRIMARY KEY,
+	first_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	last_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_last_visit_on_visitors
+AFTER UPDATE ON visitors
+BEGIN
+   UPDATE visitors SET last_visit = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TABLE user_agents (
+	id			INTEGER NOT NULL PRIMARY KEY,
+	user_agent	TEXT NOT NULL UNIQUE,
+	first_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	last_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_last_visit_on_user_agents
+AFTER UPDATE ON user_agents
+BEGIN
+   UPDATE user_agents SET last_visit = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TABLE ips (
+	id			INTEGER NOT NULL PRIMARY KEY,
+	ip		TEXT NOT NULL UNIQUE,
+	first_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	last_visit	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER update_last_visit_on_ips
+AFTER UPDATE ON ips
+BEGIN
+   UPDATE ips SET last_visit = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TABLE visits (
+	id			INTEGER NOT NULL PRIMARY KEY,
+	datetime	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	url			INTEGER NOT NULL,
+	visitor		INTEGER NOT NULL,
+	user_agent	INTEGER NOT NULL DEFAULT 1,
+	ip			INTEGER NOT NULL DEFAULT 1,
+	FOREIGN KEY(url) REFERENCES urls(id),
+	FOREIGN KEY(visitor) REFERENCES visitors(id),
+	FOREIGN KEY(user_agent) REFERENCES user_agents(id) ON DELETE SET DEFAULT,
+	FOREIGN KEY(ip) REFERENCES ips(id) ON DELETE SET DEFAULT
+);
+
+INSERT INTO visitors (first_visit) VALUES (datetime('now'));
+INSERT INTO user_agents (user_agent) VALUES ("NO_USER_AGENT");
+INSERT INTO ips (ip) VALUES ("NO_IP");
