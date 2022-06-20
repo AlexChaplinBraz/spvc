@@ -63,7 +63,7 @@ StartLimitIntervalSec=0
 Type=simple
 User=root
 WorkingDirectory=/root/spvc
-ExecStart=/root/spvc/spvc -ai -u https://mywebsite.com http://mywebsite.com
+ExecStart=/root/spvc/spvc -au https://mywebsite.com http://mywebsite.com
 Restart=always
 RestartSec=1
 
@@ -82,23 +82,21 @@ Here's the help message:
 
 ```python
 USAGE:
-    spvc [OPTIONS]
+    spvc [OPTIONS] <ALLOWED_URLS>...
+
+ARGS:
+    <ALLOWED_URLS>...    Checks the start of each URL against this list
 
 OPTIONS:
-    -a, --save-user-agent                Enable saving the visitor's user agent
-    -d, --db-path <DB_PATH>              Path to the SQLite database [default: spvc.db]
-    -h, --help                           Print help information
-    -i, --save-ip                        Enable saving the visitor's IP address
-    -s, --address <ADDRESS>              Set a socket address to listen to [default: 127.0.0.1:7782]
-    -u, --allowed-urls <ALLOWED_URLS>    Checks the start of each URL against this list
-    -V, --version                        Print version information
+    -a, --address <ADDRESS>    Set a socket address to listen to [default: 127.0.0.1:7782]
+    -d, --db-path <DB_PATH>    Path to the SQLite database [default: spvc.db]
+    -h, --help                 Print help information
+    -i, --save-ip              Enable saving the visitor's IP address
+    -u, --save-user-agent      Enable saving the visitor's user agent
+    -V, --version              Print version information
 ```
 
-There is no configuration file, so you set these options in the `systemd` service.
-
-**NOTE:** `--allowed-urls` is actually required, but I wasn't able to make it so through `clap`'s Derive API.
-Can't find a way to set a `Vec<String>` as required. May rewrite it with the Builder API later.
-If you forgot, you'll just see a bunch of `WARN spvc::api: unauthorized call from...` in the logs.
+There is no configuration file, so you set these options in the `ExecStart` field of `spvc.service`.
 
 ### Running for multiple websites on the same machine
 
