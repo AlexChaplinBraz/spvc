@@ -12,6 +12,11 @@ use sqlx::{Pool, Row, Sqlite};
 use std::sync::Arc;
 use tower_cookies::{Cookie, Cookies};
 
+pub const MISSING_REFERER_HEADER: &str = "MISSING_REFERER_HEADER";
+pub const MISSING_USER_AGENT_HEADER: &str = "MISSING_USER_AGENT_HEADER";
+pub const INVALID_REFERER_HEADER: &str = "INVALID_REFERER_HEADER";
+pub const INVALID_USER_AGENT_HEADER: &str = "INVALID_USER_AGENT_HEADER";
+
 pub async fn log_visitor(
     headers: ExtractedHeaders,
     ClientIp(ip): ClientIp,
@@ -153,26 +158,24 @@ where
     async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
         let referer = match req.headers().get("referer") {
             Some(value) => match value.to_str() {
-                Ok(host) => host.to_owned(),
+                Ok(referer) => referer.to_owned(),
                 Err(e) => {
-                    let invalid_msg = "INVALID_REFERER_HEADER";
-                    tracing::error!("{}: {}", invalid_msg, e);
-                    invalid_msg.to_string()
+                    tracing::error!("{}: {}", INVALID_REFERER_HEADER, e);
+                    INVALID_REFERER_HEADER.to_string()
                 }
             },
-            None => "MISSING_REFERER_HEADER".to_string(),
+            None => MISSING_REFERER_HEADER.to_string(),
         };
 
         let user_agent = match req.headers().get("user-agent") {
             Some(value) => match value.to_str() {
-                Ok(host) => host.to_owned(),
+                Ok(user_agent) => user_agent.to_owned(),
                 Err(e) => {
-                    let invalid_msg = "INVALID_USER_AGENT_HEADER";
-                    tracing::error!("{}: {}", invalid_msg, e);
-                    invalid_msg.to_string()
+                    tracing::error!("{}: {}", INVALID_USER_AGENT_HEADER, e);
+                    INVALID_USER_AGENT_HEADER.to_string()
                 }
             },
-            None => "MISSING_USER_AGENT_HEADER".to_string(),
+            None => MISSING_USER_AGENT_HEADER.to_string(),
         };
 
         Ok(Self {

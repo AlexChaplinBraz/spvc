@@ -1,6 +1,9 @@
 mod api;
 mod config;
-use crate::{api::log_visitor, config::Config};
+use crate::{
+    api::{log_visitor, MISSING_REFERER_HEADER},
+    config::Config,
+};
 use axum::{routing::get, Extension, Router};
 use clap::Parser;
 use sqlx::{migrate::MigrateDatabase, Sqlite, SqlitePool};
@@ -21,9 +24,7 @@ async fn main() {
 
     let mut config = Config::parse();
     if config.save_missing_referer {
-        config
-            .allowed_urls
-            .push("MISSING_REFERER_HEADER".to_string());
+        config.allowed_urls.push(MISSING_REFERER_HEADER.to_string());
     }
     let config = Arc::new(config);
 
