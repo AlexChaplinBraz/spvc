@@ -19,7 +19,13 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let config = Arc::new(Config::parse());
+    let mut config = Config::parse();
+    if config.save_missing_referer {
+        config
+            .allowed_urls
+            .push("MISSING_REFERER_HEADER".to_string());
+    }
+    let config = Arc::new(config);
 
     let db_url = format!("sqlite://{}", config.db_path);
 

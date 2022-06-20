@@ -88,12 +88,14 @@ ARGS:
     <ALLOWED_URLS>...    Checks the start of each URL against this list
 
 OPTIONS:
-    -a, --address <ADDRESS>    Set a socket address to listen to [default: 127.0.0.1:7782]
-    -d, --db-path <DB_PATH>    Path to the SQLite database [default: spvc.db]
-    -h, --help                 Print help information
-    -i, --save-ip              Enable saving the visitor's IP address
-    -u, --save-user-agent      Enable saving the visitor's user agent
-    -V, --version              Print version information
+    -a, --address <ADDRESS>       Set a socket address to listen to [default: 127.0.0.1:7782]
+    -d, --db-path <DB_PATH>       Path to the SQLite database [default: spvc.db]
+    -h, --help                    Print help information
+    -i, --save-ip                 Enable saving the visitor's IP address
+    -m, --save-missing-referer    Save visits with missing referer header instead of treating them
+                                  as unauthorized calls
+    -u, --save-user-agent         Enable saving the visitor's user agent
+    -V, --version                 Print version information
 ```
 
 There is no configuration file, so you set these options in the `ExecStart` field of `spvc.service`.
@@ -122,6 +124,23 @@ SELECT urls.url, count(visits.url) AS visits FROM visits INNER JOIN urls ON visi
 ```
 
 Take a look at the `schema.sql` file to see how the database is structured.
+
+## How effective is using the `referer` header to count page views?
+
+Unknown. My websites don't receive that much traffic, so it's going to take a while to figure out a percentage.
+But from what I've seen already, of the ~300 visits I got while testing initially,
+only around 5 had a missing `referer` header. This is from memory, as I deleted that version of the database.
+
+The filtering of URLs by default excludes visits with a missing header.
+This could actually affect legitimate visitors too,
+if their browser disables sending the `referer` despite our setting the `referrerpolicy`.
+I'm unsure whether these visits were from actual people or just bots.
+But even if they are from real people,
+I think it's fine to accept their wish to remain anonymous and just not count them anywhere.
+
+I added an option to save visits with missing `referer` header to be able to figure out how often this happens
+and in turn see how effective it is to use the `referer` header as a way to get the currently visited page,
+so I'll be running that and will update this section when it becomes clearer.
 
 ## Do you need to ask the user for consent?
 

@@ -19,4 +19,7 @@ pub struct Config {
     /// Enable saving the visitor's user agent
     #[clap(short = 'u', long)]
     pub save_user_agent: bool,
+    /// Save visits with missing referer header instead of treating them as unauthorized calls
+    #[clap(short = 'm', long)]
+    pub save_missing_referer: bool,
 }
