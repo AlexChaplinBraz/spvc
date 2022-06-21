@@ -63,7 +63,7 @@ StartLimitIntervalSec=0
 Type=simple
 User=root
 WorkingDirectory=/root/spvc
-ExecStart=/root/spvc/spvc -au https://mywebsite.com http://mywebsite.com
+ExecStart=/root/spvc/spvc -iu https://mywebsite.com http://mywebsite.com
 Restart=always
 RestartSec=1
 
